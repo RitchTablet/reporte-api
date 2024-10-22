@@ -1,26 +1,32 @@
 import { Injectable } from '@nestjs/common';
-import { format, parse, parseISO } from 'date-fns';
-import { es } from 'date-fns/locale';
+import * as dayjs from 'dayjs';
+import 'dayjs/locale/es';
+
+dayjs.locale('es'); 
 
 @Injectable()
 export class DateService {
 
-  isISOFormat(date: string): boolean {
-    const isoRegex = /^\d{4}-\d{2}-\d{2}$/;
-    return isoRegex.test(date);
+  getMonthDateRangeISO(year: number, month: number): { startDate: string, endDate: string } {
+    const startDate = dayjs().year(year).month(month - 1).startOf('month').format('YYYY-MM-DD');
+    const endDate = dayjs().year(year).month(month - 1).endOf('month').format('YYYY-MM-DD');
+
+    return { startDate, endDate };
   }
 
-  convertToISO(date: string, inComingDateFormat:string ='dd/MM/yyyy'): string {
-    if (this.isISOFormat(date)) {
-      return date;
-    }
-
-    const parsedDate = parse(date, inComingDateFormat, new Date());
-    return format(parsedDate, 'yyyy-MM-dd');
+  getMonthName(monthNumber: number): string {    
+    return dayjs().month(monthNumber - 1).format('MMMM');
   }
 
-  getMonthName(date: string): string {
-    const parsedDate = parseISO(date);
-    return format(parsedDate, 'MMMM', { locale: es });
+  getCurrentMonth(): number {
+    return dayjs().month() + 1;
+  }
+  
+  getCurrentYear(): number {
+    return dayjs().year();
+  }
+
+  getDateTodayFormat(dateFormat: string = 'YYYY-MM-DD'): string {
+    return dayjs().format(dateFormat); 
   }
 }
