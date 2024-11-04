@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Inject, Module, OnModuleInit } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ReportModule } from '@modules/report/report.module';
@@ -12,7 +12,7 @@ import { CronService } from '@services/cron.service';
 import { ReportService } from '@report/report.service';
 import { DateService } from '@services/date.service';
 import { FileService } from '@services/file.service';
-import { EmailService } from '@services/email.service';
+import { MailService } from '@api/services/mail.service';
 import { UserModule } from '@modules/user/user.module';
 import { entities } from './entities.config';
 import { PassportModule } from '@nestjs/passport';
@@ -26,6 +26,10 @@ import { TeamLeadModule } from '@modules/team-lead/team-lead.module';
 import { ProjectModule } from '@api/modules/proyect/project.module';
 import { AuthModule } from '@modules/auth/auth.module';
 import { ProviderModule } from './modules/provider/provider.module';
+import { SeedModule } from './services/seed/seed.module';
+import { SeedService } from './services/seed/seed.service';
+import { ConfigModule as MyConfigModule } from './modules/config/config.module';
+import { MailConfig } from './shared/entities/mail-config.entity';
 
 @Module({
   imports: [
@@ -52,13 +56,15 @@ import { ProviderModule } from './modules/provider/provider.module';
     }),
     ScheduleModule.forRoot(),
     ReportModule,
-    TypeOrmModule.forFeature([ReportEntity, FileEntity]),
+    TypeOrmModule.forFeature([ReportEntity, FileEntity, MailConfig]),
     UserModule,
     AuthModule,
     TribeModule,
     TeamLeadModule,
     ProjectModule,
     ProviderModule,
+    SeedModule,
+    MyConfigModule,
   ],
   controllers: [AppController],
   providers: [
@@ -67,7 +73,7 @@ import { ProviderModule } from './modules/provider/provider.module';
     ReportService,
     DateService,
     FileService,
-    EmailService,
+    MailService,
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
@@ -79,4 +85,10 @@ import { ProviderModule } from './modules/provider/provider.module';
     JwtStrategy
   ],
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit {  
+  constructor(private readonly seedService: SeedService) {}
+
+  async onModuleInit() {
+    await this.seedService.runSeed();
+  }
+}

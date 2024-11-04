@@ -6,12 +6,13 @@ import { FileService } from '@services/file.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ReportEntity } from './entities/report.entity';
 import { FileEntity } from '@shared/entities/file.entity';
-import { EmailService } from '@services/email.service';
+import { MailService } from '@api/services/mail.service';
+import { MailConfig } from '@api/shared/entities/mail-config.entity';
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ReportEntity, FileEntity])],
+  imports: [TypeOrmModule.forFeature([ReportEntity, FileEntity, MailConfig])],
   controllers: [ReportController],
-  providers: [ReportService, FileService, DateService, EmailService],
+  providers: [ReportService, FileService, DateService, MailService],
 })
 export class ReportModule {}

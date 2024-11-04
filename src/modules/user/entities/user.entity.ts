@@ -11,6 +11,9 @@ export class User extends BaseEntity {
   @Exclude() 
   password: string;
 
+  @Column()  
+  name: string;
+
   @Column({ type: 'int' })
   idConsultor: number;
 

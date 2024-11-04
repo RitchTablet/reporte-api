@@ -1,11 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, OneToMany } from "typeorm";
+import { FileStatusEntity } from "./file-status.entity";
+import { BaseEntity } from "@shared/entities/base.entity";
 
-@Entity({name:'files'})
-export class FileEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column({unique:true})
+@Entity({name: 'files'})
+export class FileEntity extends BaseEntity {  
+  @Column({unique: true})
   name: string;
 
   @Column()
@@ -17,9 +16,6 @@ export class FileEntity {
   @Column()
   year: number;
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @OneToMany(() => FileStatusEntity, status => status.file)
+  statuses: FileStatusEntity[];  
 }

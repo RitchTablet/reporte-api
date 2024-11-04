@@ -11,10 +11,10 @@ import { UserService } from '@modules/user/user.service';
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-    private readonly jwtService: JwtService, 
+    private readonly jwtService: JwtService,
   ) {}
 
-  async login(loginDto: LoginDto) {    
+  async login(loginDto: LoginDto): Promise<{accessToken: string}> {    
     const {email, password} = loginDto;
     
     const user = await this.userService.findByEmail(email);

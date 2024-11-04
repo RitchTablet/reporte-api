@@ -1,10 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ReportService } from './report.service';
 import { CreateReportDto } from './dto/create-report.dto';
-import { Public } from '@api/shared/decorators/public.decorator';
 
 
-@Public()
 @Controller('report')
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}

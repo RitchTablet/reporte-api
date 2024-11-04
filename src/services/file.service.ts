@@ -68,7 +68,7 @@ export class FileService {
   }
 
   getFilesBasePath(): string {
-    return path.join(__dirname, '..', '..', 'files');
+    return path.join(__dirname, '..', '..', 'uploads');
   }
 
   getFullPathFile(templateName:string) : string {
@@ -78,5 +78,9 @@ export class FileService {
 
   getByFilename(filename: string): Promise<FileEntity> {
     return this._fileRepository.findOne({where:{name:filename}})
+  }
+
+  getByMonthAndYear(month:number, year:number) :Promise<FileEntity> {
+    return this._fileRepository.findOne({where:{month, year}})
   }
 }

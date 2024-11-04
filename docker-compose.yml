@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     env_file:
       - .env
+    volumes:
+      - ./uploads:/app/uploads 
     ports:
       - "3000:3000" 
     restart: always
