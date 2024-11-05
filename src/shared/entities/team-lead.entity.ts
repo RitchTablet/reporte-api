@@ -1,5 +1,6 @@
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity } from './base.entity';
+import { User } from '@api/modules/user/entities/user.entity';
 
 export enum LeadType {
   TEACH = 'teach',
@@ -25,4 +26,10 @@ export class TeamLead extends BaseEntity {
     type: 'text',
   })
   empresa: EmpresaType;
+
+  @OneToMany(() => User, (user) => user.teachLead)
+  usersAsTeachLead: User[];
+
+  @OneToMany(() => User, (user) => user.squadLead)
+  usersAsSquadLead: User[];
 }

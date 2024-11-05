@@ -1,26 +1,24 @@
+import { MailConfig } from '@api/shared/entities/mail-config.entity';
 import { Injectable } from '@nestjs/common';
-import { CreateConfigDto } from './dto/create-config.dto';
-import { UpdateConfigDto } from './dto/update-config.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Configs } from '@modules/config/interfaces/configs';
 
 @Injectable()
 export class ConfigService {
-  create(createConfigDto: CreateConfigDto) {
-    return 'This action adds a new config';
-  }
+  constructor(
+    @InjectRepository(MailConfig)
+    private readonly _mailConfigRepository: Repository<MailConfig>,
+  ) {}
 
-  findAll() {
-    return `This action returns all config`;
-  }
+  async findAll(userId: number): Promise<Configs> {
+    const { user, password } = await this._mailConfigRepository.findOne({
+      where: {
+        userEntity: { id: userId },
+      },
+      relations: ['userEntity'],
+    });
 
-  findOne(id: number) {
-    return `This action returns a #${id} config`;
-  }
-
-  update(id: number, updateConfigDto: UpdateConfigDto) {
-    return `This action updates a #${id} config`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} config`;
+    return <Configs>{ mailData: { user, password } };
   }
 }

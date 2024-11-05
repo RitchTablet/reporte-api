@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ReportModule } from '@modules/report/report.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ReportEntity } from '@modules/report/entities/report.entity';
+import { Report } from '@modules/report/entities/report.entity';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from '@shared/interceptors/response.interceptor';
 import { FileEntity } from '@shared/entities/file.entity';
@@ -38,11 +38,11 @@ import { MailConfig } from './shared/entities/mail-config.entity';
     }),
     TypeOrmModule.forRoot({
       type: 'sqlite',
-      database: 'database.sqlite',
+      database: './data/database.sqlite',
       entities: entities,
       synchronize: true,
     }),
-    PassportModule.register({  defaultStrategy: 'jwt' }),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -56,7 +56,7 @@ import { MailConfig } from './shared/entities/mail-config.entity';
     }),
     ScheduleModule.forRoot(),
     ReportModule,
-    TypeOrmModule.forFeature([ReportEntity, FileEntity, MailConfig]),
+    TypeOrmModule.forFeature([Report, FileEntity, MailConfig]),
     UserModule,
     AuthModule,
     TribeModule,
@@ -82,10 +82,10 @@ import { MailConfig } from './shared/entities/mail-config.entity';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-    JwtStrategy
+    JwtStrategy,
   ],
 })
-export class AppModule implements OnModuleInit {  
+export class AppModule implements OnModuleInit {
   constructor(private readonly seedService: SeedService) {}
 
   async onModuleInit() {

@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ReportService } from './report.service';
 import { CreateReportDto } from './dto/create-report.dto';
+import { UserData } from '@api/shared/decorators/user.decorator';
 
 
 @Controller('report')
@@ -34,7 +35,7 @@ export class ReportController {
 
 
   @Get('data/config')
-  getReportDataFromConfig() {
-    return this.reportService.getReportDataFromConfig();
+  getReportDataFromConfig(@UserData('id') userId: number) {
+    return this.reportService.getReportDataFromConfig(userId);
   }
 }

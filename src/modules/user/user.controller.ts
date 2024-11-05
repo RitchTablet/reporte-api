@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { User } from '@api/shared/decorators/user.decorator';
+import { UserData } from '@api/shared/decorators/user.decorator';
 
 @Controller('user')
 export class UserController {
@@ -13,7 +13,7 @@ export class UserController {
   }
 
   @Get()
-  async getUserById(@User('id') userId: number) {
+  async getUserById(@UserData('id') userId: number) {
     return this.userService.findById(userId);    
   }
 }

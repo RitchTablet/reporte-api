@@ -2,23 +2,27 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateReportDto } from './dto/create-report.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ReportEntity } from './entities/report.entity';
+import { Report } from './entities/report.entity';
 import { DateService } from '@services/date.service';
 import { FileService } from '@services/file.service';
 import { ReportDto } from './dto/report.dto';
 import { capitalizeFirstLetter } from '@shared/tools/capitalizeFirstLetter';
 import { ReportDataFromConfig } from './interfaces/report-data-from-config';
+import { UserData } from '@api/shared/decorators/user.decorator';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class ReportService {
   constructor(
-    @InjectRepository(ReportEntity)
-    private readonly _reportRepository: Repository<ReportEntity>,
+    @InjectRepository(Report)
+    private readonly _reportRepository: Repository<Report>,
     private readonly _dateService: DateService,
     private readonly _fileService: FileService,
+    @InjectRepository(User)
+    private readonly _userRepository: Repository<User>,
   ) {}
 
-  async create(createReportDto: CreateReportDto): Promise<ReportEntity> {
+  async create(createReportDto: CreateReportDto): Promise<Report> {
     const report = this._reportRepository.create(createReportDto);
     return this._reportRepository.save(report);
   }
@@ -26,7 +30,7 @@ export class ReportService {
   async getReportsByMonthAndYear(
     month: number,
     year: number,
-  ): Promise<ReportEntity[]> {
+  ): Promise<Report[]> {
     const { startDate, endDate } = this._dateService.getMonthDateRangeISO(
       year,
       month,
@@ -79,23 +83,32 @@ export class ReportService {
     return this._fileService.getNamesFromExcelFiles();
   }
 
-  async getReportsByFilename(filename: string): Promise<ReportEntity[]> {
+  async getReportsByFilename(filename: string): Promise<Report[]> {
     const { month, year } = await this._fileService.getByFilename(filename);
     return this.getReportsByMonthAndYear(month, year);
   }
 
-  async getReportDataFromConfig(): Promise<ReportDataFromConfig> {
-    const currentDate = this._dateService.getDateTodayFormat();
+  async getReportDataFromConfig(userId: number): Promise<ReportDataFromConfig> {
+    const currentDate = this._dateService.getDateTodayFormat();    
+    const user = await this._userRepository.findOne({
+      where: { id: userId },
+      relations: ['provider' ,'teachLead', 'squadLead', 'project', 'tribe'],
+    });
+
+    if (!user) {
+      throw new Error(`User with ID ${userId} not found`);
+    }    
+
     return {
-      provider: 'Axity',
-      consultorId: 31949,
-      userWinId: 'vn57kvr',
-      jiraId: 'ROADSUBIN-17833',
-      axityTribe: 'Datos',
-      axitySquadLead: 'Marta Alicia Cuamatzi Cuamatzi',
-      wmTechLead: 'Victor Flores',
-      professionalName: 'Jesus Raul Alarcon Ontiveros',
-      assignmentProject: 1,
+      provider: user.provider.name,
+      consultorId: user.idConsultor,
+      userWinId: user.usuarioWindows,
+      jiraId: user.idJira,
+      axityTribe: user.tribe?.name || 'N/A',
+      axitySquadLead: user.squadLead?.name || 'N/A',
+      wmTechLead: user.teachLead.name || 'N/A',
+      professionalName: user.name,
+      assignmentProject: user.project?.id || 0,
       hours: 8,
       date: currentDate,
     };
